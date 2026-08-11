@@ -103,21 +103,12 @@ In der gruppengetrennten Prüfung mit 710 synthetischen Bildern wurden 508 Bilde
 
 Von den 95 manuell als nicht auswertbar markierten Stationsbildern wurden 92 automatisch abgelehnt.
 
-Der aktuelle Stand ist damit für einen kontrollierten Pilotbetrieb an dieser Installation geeignet. Die Werte sind kein Nachweis für andere Kameras oder Standorte.
-
 ## Bekannte Grenzen
 
 - Reale Trainingsbilder über 25 cm fehlen bisher. Größere Höhen wurden hauptsächlich mit synthetischen Bildern geprüft.
 - Tropfen, Schnee auf der Linse, Nebel und lokale Schmelzstellen können Pegel und Umgebung widersprüchlich erscheinen lassen.
 - Eine deutliche Änderung der Kamera oder des Pegels erfordert eine neue Kalibrierung.
 - Eine vollständig neue, zeitlich spätere Bildserie wurde noch nicht als unabhängiger Zukunftstest ausgewertet.
-
-## Wenn neue Bilder hinzukommen
-
-1. Originalbild, Modellausgabe und gegebenenfalls die manuell geprüfte Schneehöhe gemeinsam speichern.
-2. Unsichere Bilder, offensichtliche Fehler und eine kleine Zufallsstichprobe korrekter Messungen nachprüfen.
-3. Mindestens eine komplette neue Zeitserie unangetastet als Zukunftstest zurückhalten.
-4. Erst bei wiederkehrenden Fehlermustern nachtrainieren und das neue Modell anschließend wieder gegen den zurückgehaltenen Test prüfen.
 
 ## Repository-Struktur
 
@@ -135,4 +126,3 @@ docs/
 ```
 
 Eine kompakte PDF-Fassung liegt unter [`docs/Schneepegel_Brotenau_Dokumentation.pdf`](docs/Schneepegel_Brotenau_Dokumentation.pdf).
-
