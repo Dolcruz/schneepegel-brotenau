@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "image_filename": "TLC00136_frame_4.jpg",
+  "image_sha256": "ba48063fb509fbee47f14442345a99eed4c1c27feb2affcdbac06c6db6a7ec77",
+  "image_width": 1920,
+  "image_height": 1080,
+  "finalized": true,
+  "points": {
+    "axis_top": {
+      "x": 973.0,
+      "y": 321.5
+    },
+    "tick_80": {
+      "x": 973.5,
+      "y": 348.0
+    },
+    "tick_70": {
+      "x": 973.0,
+      "y": 400.5
+    },
+    "tick_60": {
+      "x": 973.5,
+      "y": 453.5
+    },
+    "tick_50": {
+      "x": 973.5,
+      "y": 506.5
+    },
+    "tick_40": {
+      "x": 973.0,
+      "y": 558.5
+    },
+    "tick_30": {
+      "x": 972.5,
+      "y": 610.0
+    },
+    "tick_20": {
+      "x": 972.0,
+      "y": 659.5
+    },
+    "tick_10": {
+      "x": 971.5,
+      "y": 708.0
+    },
+    "axis_bottom": {
+      "x": 970.5,
+      "y": 753.0
+    }
+  },
+  "updated_at_utc": "2026-08-03T13:18:57+00:00"
+}

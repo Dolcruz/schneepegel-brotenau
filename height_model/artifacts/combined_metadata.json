@@ -1,0 +1,8 @@
+{
+  "evaluation": "5-fold stratified group backtest; not an independent future test",
+  "zero_threshold": 0.7,
+  "context_ambiguous_lower": 0.3,
+  "height_std_threshold_cm": 4.486697746239324,
+  "output_resolution_cm": 1.0,
+  "uncertainty_rule": "accept 0 cm at p_zero >= 0.70; abstain at 0.30 <= p_zero < 0.70; otherwise abstain when tree prediction std exceeds the stored threshold"
+}

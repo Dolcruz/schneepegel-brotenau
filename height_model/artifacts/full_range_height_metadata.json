@@ -1,0 +1,10 @@
+{
+  "model": "ExtraTreesRegressor",
+  "training_images": 710,
+  "training_groups": 11,
+  "specialist_min_prediction_cm": 20.0,
+  "specialist_max_std_cm": 1.2,
+  "minimum_geometric_height_cm": 18.0,
+  "maximum_geometric_disagreement_cm": 5.0,
+  "validation": "leave-one-source-series-out"
+}
