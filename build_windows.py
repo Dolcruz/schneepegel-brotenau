@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.metadata
+import os
 import shutil
 import subprocess
 import sys
@@ -24,6 +25,14 @@ def main():
         raise RuntimeError("Die ResNet-Gewichte haben nicht die erwartete Prüfsumme.")
     target = ROOT / "height_model" / "resources" / source.name
     shutil.copy2(source, target)
+    # Resolve DLLs from the build interpreter and Windows, never unrelated tools
+    # (for example Conda or image converters) inherited through the host PATH.
+    environment = os.environ.copy()
+    windows = Path(os.environ["SystemRoot"])
+    environment["PATH"] = os.pathsep.join(map(str, [
+        Path(sys.executable).parent, Path(sys.base_prefix),
+        windows / "System32", windows,
+    ]))
     subprocess.run([
         sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--windowed",
         "--onedir", "--name", "Schneepegel Brotenau", "--icon", "desktop/app.ico",
@@ -35,7 +44,7 @@ def main():
         "--collect-submodules", "sklearn.linear_model",
         "--hidden-import", "sklearn.neighbors._partition_nodes",
         "schneepegel.py",
-    ], cwd=ROOT, check=True)
+    ], cwd=ROOT, env=environment, check=True)
     destination = ROOT / "dist" / "Schneepegel Brotenau"
     shutil.copy2(ROOT / "START.txt", destination)
     licenses = destination / "Drittanbieter-Lizenzen"
