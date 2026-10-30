@@ -6,6 +6,9 @@ Das Modell ist für diese Kamera, diesen Blickwinkel und diesen Pegel kalibriert
 
 ## Windows-App
 
+**[Windows-Installer herunterladen](https://github.com/Dolcruz/schneepegel-brotenau/releases/download/v1.0.0/Schneepegel_Brotenau_Setup.exe)**
+· [Alle Downloads und Anleitung](https://github.com/Dolcruz/schneepegel-brotenau/releases/tag/v1.0.0)
+
 Das Windows-Paket enthält die Oberfläche, Python und alle Modelle.
 Es benötigt weder eine Installation von Python noch ein Konto oder eine Internetverbindung.
 
@@ -17,6 +20,7 @@ Die Installation erfolgt im eigenen Windows-Benutzerkonto ohne Administratorrech
 Unterstützt werden Windows 10 ab Version 1809 und Windows 11, jeweils x64.
 Ein portables ZIP ist ebenfalls verfügbar: vollständig entpacken und die EXE
 zusammen mit ihrem Ordner `_internal` aufbewahren.
+Installer und Anwendung sind nicht digital signiert.
 
 Die große Originalansicht und die Bildliste stehen im Mittelpunkt. **Prüfen**
 filtert unsichere, unbrauchbare und fehlerhafte Aufnahmen; die Suche findet Bilder
@@ -73,6 +77,8 @@ Bibliotheken nutzen 2 CPU-Threads, OpenCV 1, PyTorch Interop 1 und die drei
 Höhenregressoren je 1 Worker. Es gibt keine feste Obergrenze für die Bildanzahl;
 große Listen benötigen entsprechend mehr Arbeitsspeicher und Laufzeit. SQLite
 wartet bei einer gesperrten Ergebnisdatenbank standardmäßig bis zu 5 Sekunden.
+Die Dateinamensuche übernimmt den Qt-Standard von höchstens 32.767 Zeichen;
+weitere Zeichen werden nicht angenommen.
 Die vorhandene Modellausgabe ist auf 0 bis 80 cm in 1-cm-Schritten ausgelegt;
 die Schrittweite ist keine Messgenauigkeitsgarantie.
 
