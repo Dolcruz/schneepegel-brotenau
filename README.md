@@ -6,16 +6,24 @@ Das Modell ist für diese Kamera, diesen Blickwinkel und diesen Pegel kalibriert
 
 ## Windows-App
 
-Das portable Windows-Paket enthält die Oberfläche, Python und alle Modelle.
+Das Windows-Paket enthält die Oberfläche, Python und alle Modelle.
 Es benötigt weder eine Installation von Python noch ein Konto oder eine Internetverbindung.
 
-1. `Schneepegel_Brotenau_Windows.zip` vollständig entpacken.
-2. `Schneepegel Brotenau.exe` öffnen. Der Ordner `_internal` bleibt neben der EXE.
-3. Bilder oder einen Bildordner hinzufügen und **Analyse starten** anklicken.
+1. `Schneepegel_Brotenau_Setup.exe` öffnen und installieren.
+2. **Schneepegel Brotenau** über das Desktopsymbol oder das Startmenü öffnen.
+3. Bilder oder einen Bildordner hinzufügen. Die Auswertung beginnt automatisch.
 
-Die App zeigt eine Ergebnisliste, die Schneehöhen als Grafik und das unveränderte
-Originalbild mit Zoom. Prüfen Sie markierte Aufnahmen direkt in der Vorschau.
-**CSV exportieren** speichert alle Ergebnisse für Excel. Fehlende Messwerte bleiben
+Die Installation erfolgt im eigenen Windows-Benutzerkonto ohne Administratorrechte.
+Unterstützt werden Windows 10 ab Version 1809 und Windows 11, jeweils x64.
+Ein portables ZIP ist ebenfalls verfügbar: vollständig entpacken und die EXE
+zusammen mit ihrem Ordner `_internal` aufbewahren.
+
+Die große Originalansicht und die Bildliste stehen im Mittelpunkt. **Prüfen**
+filtert unsichere, unbrauchbare und fehlerhafte Aufnahmen; die Suche findet Bilder
+nach Dateiname. Unter **Schneehöhen** öffnet ein Klick auf einen Messpunkt das
+zugehörige Original. Der Bildausschnitt bleibt beim Eintreffen von Ergebnissen
+erhalten. Einzelne Bilder lassen sich erneut auswerten oder aus der Liste entfernen.
+**Für Excel exportieren** speichert alle Ergebnisse. Fehlende Messwerte bleiben
 leer; eine gemessene Null wird als `0` exportiert.
 
 Bildliste und Ergebnisse werden unter
@@ -38,6 +46,20 @@ py -3.12 -m venv .venv
 Das Ergebnis liegt unter `dist/Schneepegel Brotenau`. Der Build lädt einmalig die
 ResNet-18-Gewichte, prüft ihren Hash und bündelt sie für den Offlinebetrieb.
 Es gibt keinen separaten Server und keine GPU-Voraussetzung.
+Der Build isoliert die native DLL-Suche von anderen auf dem Rechner installierten
+Werkzeugen. Für den Installer anschließend mit Inno Setup 7 kompilieren:
+
+```powershell
+ISCC.exe installer.iss
+```
+
+Die Setup-Datei liegt unter `dist/installer`. Sie installiert unter
+`%LOCALAPPDATA%\Programs\Schneepegel Brotenau`, erstellt Desktop- und
+Startmenüverknüpfungen und registriert die Deinstallation. Gespeicherte Ergebnisse
+werden bei einer Deinstallation beibehalten. Laufende Anwendungen werden vom
+Installer nicht automatisch beendet oder neu gestartet. Komprimierung: ZIP,
+Stufe 7, ein Komprimierungsthread. Dies beeinflusst keine Bildanalyse.
+
 Für Paketdownloads gelten die pip-Standardwerte: 15 Sekunden Netzwerk-Wartezeit
 und bis zu 5 Verbindungswiederholungen. Der Modellgewichte-Download verwendet den
 Bibliotheksstandard ohne eigene Frist und ohne eigene Wiederholungsschleife.

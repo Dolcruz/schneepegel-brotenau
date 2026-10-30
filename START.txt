@@ -1,41 +1,65 @@
 SCHNEEPEGEL BROTENAU
 
-1. Den ZIP-Ordner vollständig entpacken.
-2. „Schneepegel Brotenau.exe“ doppelt anklicken.
-3. Bilder oder einen Bildordner auswählen und „Analyse starten“ anklicken.
+STARTEN
+„Schneepegel_Brotenau_Setup.exe“ öffnen und installieren. Danach öffnen Sie
+„Schneepegel Brotenau“ über das Desktopsymbol oder das Startmenü.
+Die Installation erfolgt im eigenen Benutzerkonto ohne Administratorrechte.
+Python, Modelle und Bildauswertung sind enthalten. Ein Konto und eine
+Internetverbindung sind für die Auswertung nicht erforderlich.
 
-Python, ein Benutzerkonto und eine Internetverbindung sind nicht erforderlich.
-Die EXE und der Ordner „_internal“ müssen zusammenbleiben.
+BILDER AUSWERTEN
+„Bilder hinzufügen“ oder „Ordner auswählen“ anklicken. Sie können auch einen
+Ordner in das Fenster ziehen. Die Auswertung beginnt automatisch.
+Unterordner werden einbezogen. Bereits vorhandene Bilder werden nicht doppelt
+aufgenommen und nicht automatisch erneut ausgewertet.
 
-Gemessene Werte erscheinen in der Übersicht. Aufnahmen ohne ausreichend
-sicheren Messwert sind als „Bitte prüfen“ oder „Nicht auswertbar“ markiert.
-Ein Klick auf eine Zeile öffnet das Originalbild in der Vorschau.
-Mit dem Mausrad zoomen; mit gedrückter Maustaste verschieben.
+ERGEBNISSE ANSEHEN
+Links steht die Bildliste, rechts das große Originalbild mit seinem Ergebnis.
+„Prüfen“ zeigt alle Aufnahmen ohne freigegebenen Messwert. Über die Suche
+finden Sie ein Bild anhand seines Dateinamens.
+Mausrad: zoomen. Ziehen: Bild verschieben. „Einpassen“ zeigt das ganze Foto.
+Mit den Pfeilen wechseln Sie zwischen den Bildern der aktuellen Auswahl.
+Der Reiter „Schneehöhen“ zeigt die Messwerte in der Importreihenfolge.
+Ein Klick auf einen Messpunkt öffnet das zugehörige Originalbild.
+„Erneut auswerten“ verarbeitet gezielt das ausgewählte Bild.
 
-„CSV exportieren“ speichert alle Ergebnisse als Tabelle, die sich in Excel
-öffnen lässt. Leere Schneehöhen sind fehlende Messwerte, keine 0 cm.
+TABELLE SPEICHERN
+„Für Excel exportieren“ speichert die gesamte Bildliste als CSV-Tabelle.
+Fehlende Schneehöhen bleiben leer; eine gemessene Null wird als 0 gespeichert.
 
-Die Bildliste und die Ergebnisse werden automatisch auf diesem Computer
-gespeichert. Die Originalbilder bleiben unverändert an ihrem Speicherort;
-sie werden nicht in die App kopiert. Auch Datum und Uhrzeit im Bild bleiben
-erhalten. Die Grafik verwendet die Importreihenfolge; Datum und Uhrzeit
-werden nicht automatisch aus dem Bild gelesen.
+SPEICHERUNG
+Bildliste und Ergebnisse werden automatisch auf diesem Computer gespeichert.
+Die Originalbilder bleiben unverändert an ihrem Speicherort. Sie werden nicht
+in die App kopiert. „Mehr“ enthält Aktionen zum Entfernen eines einzelnen
+Bildes oder zum Leeren der Liste. Originaldateien werden dabei nicht gelöscht.
+Eine Deinstallation entfernt die gespeicherten Ergebnisse nicht.
 
-Die App ist für die fest installierte Kamera am Schneepegel Brotenau
-kalibriert. Erwartet werden JPG- oder PNG-Aufnahmen mit 1920 × 1080 Pixeln.
-Eine veränderte Kameraposition erfordert eine neue Kalibrierung.
-Reale Trainingsbilder über 25 cm fehlen bislang. Größere Schneehöhen wurden
-überwiegend mit synthetischen Bildern geprüft.
-Die Modellausgabe ist auf 0 bis 80 cm in Schritten von 1 cm ausgelegt.
-Die Schrittweite ist keine Zusage zur Messgenauigkeit.
+ANHALTEN UND FORTSETZEN
+„Anhalten“ wartet auf die laufende Berechnung und speichert deren Ergebnis.
+Weitere Bilder bleiben offen. Mit „Auswertung fortsetzen“ geht es weiter.
+Auch beim Schließen wird auf die laufende Berechnung gewartet.
 
-„Anhalten“ wirkt nach dem laufenden Bild. Beim Schließen während einer
-Analyse wartet die App auf dieses Bild und speichert dessen Ergebnis.
-Kein Zeitlimit für die Bildanalyse, keine automatische Wiederholung,
-keine feste Obergrenze für die Anzahl importierter Bilder. Ein Bild wird
-gleichzeitig verarbeitet. PyTorch und numerische Bibliotheken verwenden
-2 CPU-Threads, OpenCV 1, PyTorch Interop 1 und die Regressoren je 1 Worker.
-Bei gesperrter Ergebnisdatenbank wartet SQLite maximal 5 Sekunden.
+FACHLICHER EINSATZ
+Nur für die fest installierte Kamera am Schneepegel Brotenau.
+Erwartet werden JPG/PNG mit 1920 × 1080 Pixeln. Eine veränderte Kameraposition
+erfordert eine neue Kalibrierung. Reale Trainingsbilder über 25 cm fehlen
+bislang; größere Höhen wurden überwiegend synthetisch geprüft.
+Ausgabebereich: 0–80 cm in 1-cm-Schritten. Die Schrittweite ist keine Zusage
+zur Messgenauigkeit. Eingebrannte Zeitstempel bleiben im Original sichtbar,
+werden aber nicht automatisch ausgelesen. Die Grafik ist keine Zeitachse.
+
+BETRIEB
+Ein Bild gleichzeitig; PyTorch und numerische Bibliotheken je 2 CPU-Threads,
+OpenCV 1, PyTorch Interop 1 und die drei Höhenregressoren je 1 Worker.
+Kein Analyse-Zeitlimit, keine automatischen Wiederholungen und keine feste
+Bildanzahlgrenze. Große Listen benötigen entsprechend mehr Speicher und Zeit.
+Bei einer hängenden Berechnung bleibt das Warten auf deren Ende unbegrenzt.
+SQLite wartet bei einer gesperrten Ergebnisdatenbank bis zu 5 Sekunden.
 
 Ergebnisse: %LOCALAPPDATA%\Brotenau\Schneepegel Brotenau\ergebnisse.sqlite3
-Windows 10/11, 64 Bit (x64).
+App: %LOCALAPPDATA%\Programs\Schneepegel Brotenau
+Windows 10 ab Version 1809 oder Windows 11, 64 Bit (x64).
+
+PORTABLE AUSGABE
+Alternativ das Windows-ZIP vollständig entpacken und „Schneepegel Brotenau.exe“
+öffnen. Die EXE und der Ordner „_internal“ müssen zusammenbleiben.

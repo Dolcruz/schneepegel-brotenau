@@ -56,6 +56,24 @@ class LibraryTests(unittest.TestCase):
             self.library.add([self.root / "new.png"])
         self.assertEqual(self.library.rows, [])
 
+    def test_recheck_and_remove_change_only_selected_record(self):
+        paths = [self.root / name for name in ("first.png", "second.png")]
+        for path in paths:
+            path.write_bytes(b"original")
+        self.library.add(paths)
+        result = {"status": "measured", "snow_height_cm": 3, "reason": "positive_peg_model"}
+        self.library.save_result(0, result)
+        self.library.save_result(1, result)
+        self.library.reset_result(1)
+        self.assertEqual(self.library.rows[0]["result"], result)
+        self.assertIsNone(self.library.rows[1]["result"])
+        self.library.remove(1)
+        reopened = Library(self.root / "results.sqlite3")
+        self.assertEqual(len(reopened.rows), 1)
+        self.assertEqual(reopened.rows[0]["result"], result)
+        reopened.close()
+        self.assertTrue(all(path.read_bytes() == b"original" for path in paths))
+
 
 if __name__ == "__main__":
     unittest.main()

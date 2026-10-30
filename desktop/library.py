@@ -80,6 +80,16 @@ class Library:
             self.connection.execute("DELETE FROM images")
         self.rows.clear()
 
+    def reset_result(self, index: int) -> None:
+        with self.connection:
+            self.connection.execute("UPDATE images SET result=NULL WHERE path=?", (self.rows[index]["path"],))
+        self.rows[index]["result"] = None
+
+    def remove(self, index: int) -> None:
+        with self.connection:
+            self.connection.execute("DELETE FROM images WHERE path=?", (self.rows[index]["path"],))
+        self.rows.pop(index)
+
     def close(self) -> None:
         self.connection.close()
 
