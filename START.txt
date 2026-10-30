@@ -1,0 +1,39 @@
+SCHNEEPEGEL BROTENAU
+
+1. Den ZIP-Ordner vollständig entpacken.
+2. „Schneepegel Brotenau.exe“ doppelt anklicken.
+3. Bilder oder einen Bildordner auswählen und „Analyse starten“ anklicken.
+
+Python, ein Benutzerkonto und eine Internetverbindung sind nicht erforderlich.
+Die EXE und der Ordner „_internal“ müssen zusammenbleiben.
+
+Gemessene Werte erscheinen in der Übersicht. Aufnahmen ohne ausreichend
+sicheren Messwert sind als „Bitte prüfen“ oder „Nicht auswertbar“ markiert.
+Ein Klick auf eine Zeile öffnet das Originalbild in der Vorschau.
+Mit dem Mausrad zoomen; mit gedrückter Maustaste verschieben.
+
+„CSV exportieren“ speichert alle Ergebnisse als Tabelle, die sich in Excel
+öffnen lässt. Leere Schneehöhen sind fehlende Messwerte, keine 0 cm.
+
+Die Bildliste und die Ergebnisse werden automatisch auf diesem Computer
+gespeichert. Die Originalbilder bleiben unverändert an ihrem Speicherort;
+sie werden nicht in die App kopiert. Auch Datum und Uhrzeit im Bild bleiben
+erhalten. Die Grafik verwendet die Importreihenfolge; Datum und Uhrzeit
+werden nicht automatisch aus dem Bild gelesen.
+
+Die App ist für die fest installierte Kamera am Schneepegel Brotenau
+kalibriert. Erwartet werden JPG- oder PNG-Aufnahmen mit 1920 × 1080 Pixeln.
+Eine veränderte Kameraposition erfordert eine neue Kalibrierung.
+Reale Trainingsbilder über 25 cm fehlen bislang. Größere Schneehöhen wurden
+überwiegend mit synthetischen Bildern geprüft.
+
+„Anhalten“ wirkt nach dem laufenden Bild. Beim Schließen während einer
+Analyse wartet die App auf dieses Bild und speichert dessen Ergebnis.
+Kein Zeitlimit für die Bildanalyse, keine automatische Wiederholung,
+keine feste Obergrenze für die Anzahl importierter Bilder. Ein Bild wird
+gleichzeitig verarbeitet. PyTorch und numerische Bibliotheken verwenden
+2 CPU-Threads, OpenCV 1, PyTorch Interop 1 und die Regressoren je 1 Worker.
+Bei gesperrter Ergebnisdatenbank wartet SQLite maximal 5 Sekunden.
+
+Ergebnisse: %LOCALAPPDATA%\Brotenau\Schneepegel Brotenau\ergebnisse.sqlite3
+Windows 10/11, 64 Bit (x64).

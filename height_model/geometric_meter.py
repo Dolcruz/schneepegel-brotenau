@@ -285,7 +285,7 @@ def extract_runtime_scores(
 ) -> dict[str, object]:
     calibration = load_calibration()
     templates = load_anchor_templates()
-    gray = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+    gray = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_GRAYSCALE)
     if gray is None or gray.shape != (1080, 1920):
         return {"available": False}
 
