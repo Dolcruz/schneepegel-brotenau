@@ -51,6 +51,8 @@ Bibliotheken nutzen 2 CPU-Threads, OpenCV 1, PyTorch Interop 1 und die drei
 Höhenregressoren je 1 Worker. Es gibt keine feste Obergrenze für die Bildanzahl;
 große Listen benötigen entsprechend mehr Arbeitsspeicher und Laufzeit. SQLite
 wartet bei einer gesperrten Ergebnisdatenbank standardmäßig bis zu 5 Sekunden.
+Die vorhandene Modellausgabe ist auf 0 bis 80 cm in 1-cm-Schritten ausgelegt;
+die Schrittweite ist keine Messgenauigkeitsgarantie.
 
 ## Kommandozeile
 

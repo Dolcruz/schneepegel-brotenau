@@ -26,6 +26,8 @@ kalibriert. Erwartet werden JPG- oder PNG-Aufnahmen mit 1920 × 1080 Pixeln.
 Eine veränderte Kameraposition erfordert eine neue Kalibrierung.
 Reale Trainingsbilder über 25 cm fehlen bislang. Größere Schneehöhen wurden
 überwiegend mit synthetischen Bildern geprüft.
+Die Modellausgabe ist auf 0 bis 80 cm in Schritten von 1 cm ausgelegt.
+Die Schrittweite ist keine Zusage zur Messgenauigkeit.
 
 „Anhalten“ wirkt nach dem laufenden Bild. Beim Schließen während einer
 Analyse wartet die App auf dieses Bild und speichert dessen Ergebnis.
