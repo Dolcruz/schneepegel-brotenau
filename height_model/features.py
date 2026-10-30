@@ -42,7 +42,7 @@ def locate_anchor(image: np.ndarray, template: np.ndarray) -> tuple[int, int, fl
 
 
 def extract_peg_profile(image_path: Path, template: np.ndarray) -> tuple[np.ndarray, float]:
-    image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+    image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_GRAYSCALE)
     if image is None or image.shape != (1080, 1920):
         raise RuntimeError(f"Unerwartetes Bildformat: {image_path}")
     x, y, score = locate_anchor(image, template)
@@ -64,7 +64,7 @@ def extract_peg_profile(image_path: Path, template: np.ndarray) -> tuple[np.ndar
 
 
 def extract_context_features(image_path: Path) -> np.ndarray:
-    image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
+    image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR)
     if image is None or image.shape[:2] != (1080, 1920):
         raise RuntimeError(f"Unerwartetes Bildformat: {image_path}")
     image = cv2.resize(image[:1035], (320, 180), interpolation=cv2.INTER_AREA)

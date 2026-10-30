@@ -4,7 +4,85 @@ Dieses Repository enthält die lauffähige Auswertung für die fest installierte
 
 Das Modell ist für diese Kamera, diesen Blickwinkel und diesen Pegel kalibriert. Es ist kein allgemeiner Schneedetektor für andere Standorte.
 
-## Schnellstart unter Windows
+## Windows-App
+
+**[Windows-Installer herunterladen](https://github.com/Dolcruz/schneepegel-brotenau/releases/download/v1.0.0/Schneepegel_Brotenau_Setup.exe)**
+· [Alle Downloads und Anleitung](https://github.com/Dolcruz/schneepegel-brotenau/releases/tag/v1.0.0)
+
+Das Windows-Paket enthält die Oberfläche, Python und alle Modelle.
+Es benötigt weder eine Installation von Python noch ein Konto oder eine Internetverbindung.
+
+1. `Schneepegel_Brotenau_Setup.exe` öffnen und installieren.
+2. **Schneepegel Brotenau** über das Desktopsymbol oder das Startmenü öffnen.
+3. Bilder oder einen Bildordner hinzufügen. Die Auswertung beginnt automatisch.
+
+Die Installation erfolgt im eigenen Windows-Benutzerkonto ohne Administratorrechte.
+Unterstützt werden Windows 10 ab Version 1809 und Windows 11, jeweils x64.
+Ein portables ZIP ist ebenfalls verfügbar: vollständig entpacken und die EXE
+zusammen mit ihrem Ordner `_internal` aufbewahren.
+Installer und Anwendung sind nicht digital signiert.
+
+Die große Originalansicht und die Bildliste stehen im Mittelpunkt. **Prüfen**
+filtert unsichere, unbrauchbare und fehlerhafte Aufnahmen; die Suche findet Bilder
+nach Dateiname. Unter **Schneehöhen** öffnet ein Klick auf einen Messpunkt das
+zugehörige Original. Der Bildausschnitt bleibt beim Eintreffen von Ergebnissen
+erhalten. Einzelne Bilder lassen sich erneut auswerten oder aus der Liste entfernen.
+**Für Excel exportieren** speichert alle Ergebnisse. Fehlende Messwerte bleiben
+leer; eine gemessene Null wird als `0` exportiert.
+
+Bildliste und Ergebnisse werden unter
+`%LOCALAPPDATA%\Brotenau\Schneepegel Brotenau\ergebnisse.sqlite3` gespeichert.
+Die App referenziert die Originaldateien; sie kopiert oder verändert sie nicht.
+Die Grafik verwendet die Importreihenfolge. Eingebrannte Zeitstempel bleiben im
+Original sichtbar und werden nicht automatisch ausgelesen.
+
+### Windows-Paket selbst bauen
+
+Verwenden Sie eine normale 64-Bit-Installation von CPython 3.12 auf Windows:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.12.0 torchvision==0.27.0
+.\.venv\Scripts\python.exe -m pip install -r requirements-desktop.txt
+.\.venv\Scripts\python.exe build_windows.py
+```
+
+Das Ergebnis liegt unter `dist/Schneepegel Brotenau`. Der Build lädt einmalig die
+ResNet-18-Gewichte, prüft ihren Hash und bündelt sie für den Offlinebetrieb.
+Es gibt keinen separaten Server und keine GPU-Voraussetzung.
+Der Build isoliert die native DLL-Suche von anderen auf dem Rechner installierten
+Werkzeugen. Für den Installer anschließend mit Inno Setup 7 kompilieren:
+
+```powershell
+ISCC.exe installer.iss
+```
+
+Die Setup-Datei liegt unter `dist/installer`. Sie installiert unter
+`%LOCALAPPDATA%\Programs\Schneepegel Brotenau`, erstellt Desktop- und
+Startmenüverknüpfungen und registriert die Deinstallation. Gespeicherte Ergebnisse
+werden bei einer Deinstallation beibehalten. Laufende Anwendungen werden vom
+Installer nicht automatisch beendet oder neu gestartet. Komprimierung: ZIP,
+Stufe 7, ein Komprimierungsthread. Dies beeinflusst keine Bildanalyse.
+
+Für Paketdownloads gelten die pip-Standardwerte: 15 Sekunden Netzwerk-Wartezeit
+und bis zu 5 Verbindungswiederholungen. Der Modellgewichte-Download verwendet den
+Bibliotheksstandard ohne eigene Frist und ohne eigene Wiederholungsschleife.
+
+### Ausführungsverhalten
+
+Die App verarbeitet ein Bild gleichzeitig, ohne Analyse-Zeitlimit oder automatische
+Wiederholungen. **Anhalten** und das Schließen während der Analyse wirken nach dem
+laufenden Bild; dessen Ergebnis wird noch gespeichert. PyTorch und numerische
+Bibliotheken nutzen 2 CPU-Threads, OpenCV 1, PyTorch Interop 1 und die drei
+Höhenregressoren je 1 Worker. Es gibt keine feste Obergrenze für die Bildanzahl;
+große Listen benötigen entsprechend mehr Arbeitsspeicher und Laufzeit. SQLite
+wartet bei einer gesperrten Ergebnisdatenbank standardmäßig bis zu 5 Sekunden.
+Die Dateinamensuche übernimmt den Qt-Standard von höchstens 32.767 Zeichen;
+weitere Zeichen werden nicht angenommen.
+Die vorhandene Modellausgabe ist auf 0 bis 80 cm in 1-cm-Schritten ausgelegt;
+die Schrittweite ist keine Messgenauigkeitsgarantie.
+
+## Kommandozeile
 
 Voraussetzung ist eine aktuelle Python-Version. Getestet wurde die Auswertung mit Python 3.13.
 
@@ -20,13 +98,13 @@ py -3 -m venv .venv
 Ein Bild auswerten:
 
 ```powershell
-.\.venv\Scripts\python.exe height_model\predict_pipeline.py C:\Pfad\zum\bild.jpg
+.\.venv\Scripts\python.exe -m height_model.predict_pipeline C:\Pfad\zum\bild.jpg
 ```
 
 Mehrere Bilder können in einem Aufruf übergeben werden:
 
 ```powershell
-.\.venv\Scripts\python.exe height_model\predict_pipeline.py C:\Bilder\bild1.jpg C:\Bilder\bild2.jpg
+.\.venv\Scripts\python.exe -m height_model.predict_pipeline C:\Bilder\bild1.jpg C:\Bilder\bild2.jpg
 ```
 
 Beim ersten Start lädt `torchvision` einmalig die vortrainierten ResNet-18-Gewichte herunter. Danach kann die Auswertung lokal laufen.

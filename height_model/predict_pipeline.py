@@ -11,8 +11,8 @@ from PIL import Image
 from torch import nn
 from torchvision.models import ResNet18_Weights, resnet18
 
-from features import extract_context_features, extract_peg_profile, load_anchor_template
-from geometric_meter import measure_geometric_height
+from .features import extract_context_features, extract_peg_profile, load_anchor_template
+from .geometric_meter import measure_geometric_height
 
 
 HERE = Path(__file__).resolve().parent
@@ -118,86 +118,84 @@ def geometric_diagnostics(geometric: dict) -> dict:
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Kontext- und pegelbasierte Schneehöhenschätzung."
-    )
-    parser.add_argument("images", nargs="+", type=Path)
-    args = parser.parse_args()
+class SnowAnalyzer:
+    """Load the calibrated models once and evaluate station images on the CPU."""
 
-    models = joblib.load(HERE / "artifacts" / "combined_height_model.joblib")
-    metadata = json.loads(
-        (HERE / "artifacts" / "combined_metadata.json").read_text(encoding="utf-8")
-    )
-    geometric_classifier = joblib.load(
-        HERE / "artifacts" / "geometric_visibility_classifier.joblib"
-    )
-    direct_regressor = joblib.load(
-        HERE / "artifacts" / "full_range_height_regressor.joblib"
-    )
-    direct_metadata = json.loads(
-        (HERE / "artifacts" / "full_range_height_metadata.json").read_text(
-            encoding="utf-8"
+    def __init__(self, weights_path: Path | None = None):
+        self.models = joblib.load(HERE / "artifacts" / "combined_height_model.joblib")
+        self.metadata = json.loads(
+            (HERE / "artifacts" / "combined_metadata.json").read_text(encoding="utf-8")
         )
-    )
-    low_range_regressor = joblib.load(
-        HERE / "artifacts" / "low_range_height_regressor.joblib"
-    )
-    low_metadata = json.loads(
-        (HERE / "artifacts" / "low_range_height_metadata.json").read_text(
-            encoding="utf-8"
+        self.geometric_classifier = joblib.load(
+            HERE / "artifacts" / "geometric_visibility_classifier.joblib"
         )
-    )
-    geometric_metadata = json.loads(
-        (HERE / "artifacts" / "geometric_metadata.json").read_text(encoding="utf-8")
-    )
-    template = load_anchor_template()
-    quality_classifier = joblib.load(QUALITY_MODEL_DIR / "artifacts" / "classifier.joblib")
-    quality_metadata = json.loads(
-        (QUALITY_MODEL_DIR / "artifacts" / "metadata.json").read_text(encoding="utf-8")
-    )
-    quality_weights = ResNet18_Weights.IMAGENET1K_V1
-    quality_encoder = resnet18(weights=quality_weights)
-    quality_encoder.fc = nn.Identity()
-    quality_encoder.eval()
-    resolution_cm = float(metadata["output_resolution_cm"])
+        self.direct_regressor = joblib.load(
+            HERE / "artifacts" / "full_range_height_regressor.joblib"
+        )
+        self.direct_metadata = json.loads(
+            (HERE / "artifacts" / "full_range_height_metadata.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.low_range_regressor = joblib.load(
+            HERE / "artifacts" / "low_range_height_regressor.joblib"
+        )
+        self.low_metadata = json.loads(
+            (HERE / "artifacts" / "low_range_height_metadata.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.geometric_metadata = json.loads(
+            (HERE / "artifacts" / "geometric_metadata.json").read_text(encoding="utf-8")
+        )
+        self.template = load_anchor_template()
+        self.quality_classifier = joblib.load(QUALITY_MODEL_DIR / "artifacts" / "classifier.joblib")
+        self.quality_metadata = json.loads(
+            (QUALITY_MODEL_DIR / "artifacts" / "metadata.json").read_text(encoding="utf-8")
+        )
+        self.quality_weights = ResNet18_Weights.IMAGENET1K_V1
+        self.quality_encoder = resnet18(weights=None)
+        if weights_path is None:
+            state = self.quality_weights.get_state_dict(progress=True, check_hash=True)
+        else:
+            state = torch.load(weights_path, map_location="cpu", weights_only=True)
+        self.quality_encoder.load_state_dict(state)
+        self.quality_encoder.fc = nn.Identity()
+        self.quality_encoder.eval()
+        self.resolution_cm = float(self.metadata["output_resolution_cm"])
 
-    for image in args.images:
+    def predict(self, image: Path) -> dict:
         with Image.open(image) as source:
-            quality_tensor = quality_weights.transforms()(
+            if source.size != (1920, 1080):
+                raise ValueError("Erwartet wird ein Stationsbild mit 1920 × 1080 Pixeln.")
+            quality_tensor = self.quality_weights.transforms()(
                 source.convert("RGB")
             ).unsqueeze(0)
         with torch.inference_mode():
-            quality_embedding = quality_encoder(quality_tensor).numpy()
+            quality_embedding = self.quality_encoder(quality_tensor).numpy()
         probability_unusable = float(
-            quality_classifier.predict_proba(quality_embedding)[0, 1]
+            self.quality_classifier.predict_proba(quality_embedding)[0, 1]
         )
-        if probability_unusable >= float(quality_metadata["threshold"]):
-            print(
-                json.dumps(
-                    {
-                        "image": str(image.resolve()),
-                        "status": "unusable",
-                        "snow_height_cm": None,
-                        "probability_unusable": probability_unusable,
-                        "reason": "quality_filter",
-                    },
-                    ensure_ascii=False,
-                )
-            )
-            continue
+        if probability_unusable >= float(self.quality_metadata["threshold"]):
+            return {
+                "image": str(image.resolve()),
+                "status": "unusable",
+                "snow_height_cm": None,
+                "probability_unusable": probability_unusable,
+                "reason": "quality_filter",
+            }
 
         geometric = measure_geometric_height(
             image,
-            geometric_classifier,
-            direct_regressor,
-            low_range_regressor,
+            self.geometric_classifier,
+            self.direct_regressor,
+            self.low_range_regressor,
         )
         flags = geometric_route_flags(
-            geometric, direct_metadata, low_metadata, geometric_metadata
+            geometric, self.direct_metadata, self.low_metadata, self.geometric_metadata
         )
         context = extract_context_features(image)[None, :]
-        probability_zero = float(models["zero_classifier"].predict_proba(context)[0, 1])
+        probability_zero = float(self.models["zero_classifier"].predict_proba(context)[0, 1])
         result = {
             "image": str(image.resolve()),
             "probability_unusable": probability_unusable,
@@ -205,11 +203,11 @@ def main() -> None:
             **geometric_diagnostics(geometric),
         }
 
-        if probability_zero >= metadata["zero_threshold"]:
+        if probability_zero >= self.metadata["zero_threshold"]:
             result.update(
                 status="measured", snow_height_cm=0.0, reason="clear_zero_context"
             )
-        elif probability_zero >= metadata["context_ambiguous_lower"]:
+        elif probability_zero >= self.metadata["context_ambiguous_lower"]:
             result.update(
                 status="uncertain",
                 snow_height_cm=None,
@@ -219,7 +217,7 @@ def main() -> None:
             result.update(
                 status="measured",
                 snow_height_cm=quantize_height(
-                    float(geometric["direct_height_cm"]), resolution_cm
+                    float(geometric["direct_height_cm"]), self.resolution_cm
                 ),
                 reason="calibrated_direct_geometric_specialist",
             )
@@ -227,7 +225,7 @@ def main() -> None:
             result.update(
                 status="measured",
                 snow_height_cm=quantize_height(
-                    float(geometric["height_cm"]), resolution_cm
+                    float(geometric["height_cm"]), self.resolution_cm
                 ),
                 reason="calibrated_high_range_specialist",
             )
@@ -235,7 +233,7 @@ def main() -> None:
             result.update(
                 status="measured",
                 snow_height_cm=quantize_height(
-                    float(geometric["low_range_height_cm"]), resolution_cm
+                    float(geometric["low_range_height_cm"]), self.resolution_cm
                 ),
                 reason="calibrated_low_range_specialist",
             )
@@ -254,8 +252,8 @@ def main() -> None:
                 reason="geometric_models_disagree",
             )
         else:
-            profile, anchor_score = extract_peg_profile(image, template)
-            regressor = models["positive_height_regressor"]
+            profile, anchor_score = extract_peg_profile(image, self.template)
+            regressor = self.models["positive_height_regressor"]
             tree_predictions = np.asarray(
                 [tree.predict(profile[None, :])[0] for tree in regressor.estimators_]
             )
@@ -265,7 +263,7 @@ def main() -> None:
                 anchor_score=anchor_score,
                 prediction_std_cm=prediction_std,
             )
-            if prediction_std > metadata["height_std_threshold_cm"]:
+            if prediction_std > self.metadata["height_std_threshold_cm"]:
                 result.update(
                     status="uncertain",
                     snow_height_cm=None,
@@ -274,10 +272,19 @@ def main() -> None:
             else:
                 result.update(
                     status="measured",
-                    snow_height_cm=quantize_height(prediction, resolution_cm),
+                    snow_height_cm=quantize_height(prediction, self.resolution_cm),
                     reason="positive_peg_model",
                 )
-        print(json.dumps(result, ensure_ascii=False))
+        return result
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Schneehöhenschätzung für Brotenau.")
+    parser.add_argument("images", nargs="+", type=Path)
+    args = parser.parse_args()
+    analyzer = SnowAnalyzer()
+    for image in args.images:
+        print(json.dumps(analyzer.predict(image), ensure_ascii=False))
 
 
 if __name__ == "__main__":
