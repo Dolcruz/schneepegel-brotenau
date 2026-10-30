@@ -1,206 +1,145 @@
-# Schneepegelauswertung Brotenau
+# Schneepegel Brotenau
 
-Dieses Repository enthält die lauffähige Auswertung für die fest installierte Kamera am Schneepegel Brotenau. Ein Bild wird eingelesen und als Schneehöhe, unsicher oder nicht auswertbar zurückgegeben.
+Schneehöhen aus den Bildern der Messstation Brotenau auswerten. Die Windows-App zeigt zu jedem Foto das Ergebnis und das Originalbild, fasst die Messwerte in einer Grafik zusammen und exportiert sie für Excel.
 
-Das Modell ist für diese Kamera, diesen Blickwinkel und diesen Pegel kalibriert. Es ist kein allgemeiner Schneedetektor für andere Standorte.
+**[Für Windows herunterladen](https://github.com/Dolcruz/schneepegel-brotenau/releases/download/v1.0.0/Schneepegel_Brotenau_Setup.exe)** · [Alle Downloads](https://github.com/Dolcruz/schneepegel-brotenau/releases/tag/v1.0.0)
 
-## Windows-App
+## Installation
 
-**[Windows-Installer herunterladen](https://github.com/Dolcruz/schneepegel-brotenau/releases/download/v1.0.0/Schneepegel_Brotenau_Setup.exe)**
-· [Alle Downloads und Anleitung](https://github.com/Dolcruz/schneepegel-brotenau/releases/tag/v1.0.0)
+Benötigt werden Windows 10 ab Version 1809 oder Windows 11, jeweils in der 64-Bit-Version für x64.
 
-Das Windows-Paket enthält die Oberfläche, Python und alle Modelle.
-Es benötigt weder eine Installation von Python noch ein Konto oder eine Internetverbindung.
+1. `Schneepegel_Brotenau_Setup.exe` herunterladen und öffnen.
+2. Die Installation abschließen und **Schneepegel Brotenau** über das Startmenü oder das Desktopsymbol starten.
+3. Mit **Bilder hinzufügen** einzelne Fotos oder mit **Ordner auswählen** einen ganzen Bildordner öffnen. Die Auswertung beginnt automatisch.
 
-1. `Schneepegel_Brotenau_Setup.exe` öffnen und installieren.
-2. **Schneepegel Brotenau** über das Desktopsymbol oder das Startmenü öffnen.
-3. Bilder oder einen Bildordner hinzufügen. Die Auswertung beginnt automatisch.
+Python und die Modelle sind bereits enthalten. Die App arbeitet nach dem Download ohne Internetverbindung. Für die Installation sind keine Administratorrechte nötig.
 
-Die Installation erfolgt im eigenen Windows-Benutzerkonto ohne Administratorrechte.
-Unterstützt werden Windows 10 ab Version 1809 und Windows 11, jeweils x64.
-Ein portables ZIP ist ebenfalls verfügbar: vollständig entpacken und die EXE
-zusammen mit ihrem Ordner `_internal` aufbewahren.
+Wer die App ohne Installation nutzen möchte, kann das portable ZIP herunterladen. Den gesamten Ordner entpacken und `Schneepegel Brotenau.exe` öffnen. Die EXE und der Ordner `_internal` müssen zusammenbleiben.
+
 Installer und Anwendung sind nicht digital signiert.
 
-Die große Originalansicht und die Bildliste stehen im Mittelpunkt. **Prüfen**
-filtert unsichere, unbrauchbare und fehlerhafte Aufnahmen; die Suche findet Bilder
-nach Dateiname. Unter **Schneehöhen** öffnet ein Klick auf einen Messpunkt das
-zugehörige Original. Der Bildausschnitt bleibt beim Eintreffen von Ergebnissen
-erhalten. Einzelne Bilder lassen sich erneut auswerten oder aus der Liste entfernen.
-**Für Excel exportieren** speichert alle Ergebnisse. Fehlende Messwerte bleiben
-leer; eine gemessene Null wird als `0` exportiert.
+## Bilder auswerten
 
-Bildliste und Ergebnisse werden unter
-`%LOCALAPPDATA%\Brotenau\Schneepegel Brotenau\ergebnisse.sqlite3` gespeichert.
-Die App referenziert die Originaldateien; sie kopiert oder verändert sie nicht.
-Die Grafik verwendet die Importreihenfolge. Eingebrannte Zeitstempel bleiben im
-Original sichtbar und werden nicht automatisch ausgelesen.
+Die Bildliste steht links, das ausgewählte Originalbild mit seinem Ergebnis rechts. Über die Suche lassen sich Bilder nach ihrem Dateinamen finden.
 
-### Windows-Paket selbst bauen
+- **Gemessen** zeigt die Bilder mit einer ermittelten Schneehöhe.
+- **Prüfen** sammelt unsichere, nicht auswertbare und fehlerhafte Aufnahmen. Bei diesen Bildern bleibt der Höhenwert offen.
+- **Offen** zeigt Bilder, die noch nicht ausgewertet wurden.
 
-Verwenden Sie eine normale 64-Bit-Installation von CPython 3.12 auf Windows:
+Mit dem Mausrad lässt sich das Original vergrößern, durch Ziehen der Bildausschnitt verschieben. **Einpassen** zeigt wieder das ganze Foto. Im Reiter **Schneehöhen** führt ein Klick auf einen Messpunkt zum zugehörigen Bild. Die Grafik zeigt die Reihenfolge der importierten Bilder, keine Zeitachse.
 
-```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.12.0 torchvision==0.27.0
-.\.venv\Scripts\python.exe -m pip install -r requirements-desktop.txt
-.\.venv\Scripts\python.exe build_windows.py
-```
+**Anhalten** beendet die Verarbeitung nach dem laufenden Bild. Mit **Auswertung fortsetzen** geht es später weiter. Auch beim Schließen wird das laufende Bild noch fertig ausgewertet und gespeichert. Einzelne Aufnahmen können mit **Erneut auswerten** noch einmal geprüft werden.
 
-Das Ergebnis liegt unter `dist/Schneepegel Brotenau`. Der Build lädt einmalig die
-ResNet-18-Gewichte, prüft ihren Hash und bündelt sie für den Offlinebetrieb.
-Es gibt keinen separaten Server und keine GPU-Voraussetzung.
-Der Build isoliert die native DLL-Suche von anderen auf dem Rechner installierten
-Werkzeugen. Für den Installer anschließend mit Inno Setup 7 kompilieren:
+**Für Excel exportieren** speichert die gesamte Bildliste als CSV-Tabelle. Fehlende Höhenwerte bleiben leer; eine gemessene Schneehöhe von null steht als `0` in der Tabelle.
 
-```powershell
-ISCC.exe installer.iss
-```
+### Gespeicherte Bilder und Ergebnisse
 
-Die Setup-Datei liegt unter `dist/installer`. Sie installiert unter
-`%LOCALAPPDATA%\Programs\Schneepegel Brotenau`, erstellt Desktop- und
-Startmenüverknüpfungen und registriert die Deinstallation. Gespeicherte Ergebnisse
-werden bei einer Deinstallation beibehalten. Laufende Anwendungen werden vom
-Installer nicht automatisch beendet oder neu gestartet. Komprimierung: ZIP,
-Stufe 7, ein Komprimierungsthread. Dies beeinflusst keine Bildanalyse.
+Die App merkt sich die Bildliste und die Ergebnisse automatisch. Bereits hinzugefügte Bilder werden beim nächsten Import übersprungen.
 
-Für Paketdownloads gelten die pip-Standardwerte: 15 Sekunden Netzwerk-Wartezeit
-und bis zu 5 Verbindungswiederholungen. Der Modellgewichte-Download verwendet den
-Bibliotheksstandard ohne eigene Frist und ohne eigene Wiederholungsschleife.
+Die Originalfotos werden weder kopiert noch verändert. Sie sollten an ihrem Speicherort bleiben, damit die Vorschau sie weiterhin öffnen kann. Über **Mehr** lassen sich einzelne Einträge entfernen oder die Bildliste leeren. Die Originaldateien bleiben dabei erhalten.
 
-### Ausführungsverhalten
+Die Ergebnisdatenbank liegt unter `%LOCALAPPDATA%\Brotenau\Schneepegel Brotenau\ergebnisse.sqlite3` und bleibt auch nach einer Deinstallation erhalten.
 
-Die App verarbeitet ein Bild gleichzeitig, ohne Analyse-Zeitlimit oder automatische
-Wiederholungen. **Anhalten** und das Schließen während der Analyse wirken nach dem
-laufenden Bild; dessen Ergebnis wird noch gespeichert. PyTorch und numerische
-Bibliotheken nutzen 2 CPU-Threads, OpenCV 1, PyTorch Interop 1 und die drei
-Höhenregressoren je 1 Worker. Es gibt keine feste Obergrenze für die Bildanzahl;
-große Listen benötigen entsprechend mehr Arbeitsspeicher und Laufzeit. SQLite
-wartet bei einer gesperrten Ergebnisdatenbank standardmäßig bis zu 5 Sekunden.
-Die Dateinamensuche übernimmt den Qt-Standard von höchstens 32.767 Zeichen;
-weitere Zeichen werden nicht angenommen.
-Die vorhandene Modellausgabe ist auf 0 bis 80 cm in 1-cm-Schritten ausgelegt;
-die Schrittweite ist keine Messgenauigkeitsgarantie.
+## Welche Bilder passen?
 
-## Kommandozeile
+Die Auswertung ist auf die fest installierte Kamera und den Schneepegel in Brotenau abgestimmt:
 
-Voraussetzung ist eine aktuelle Python-Version. Getestet wurde die Auswertung mit Python 3.13.
+- JPG oder PNG mit 1920 × 1080 Pixeln
+- gleicher Blickwinkel und gleiche Pegelposition wie bei den Stationsaufnahmen
+- sichtbarer Pegel und ausreichend erkennbare Umgebung
+
+Andere Auflösungen werden nicht automatisch angepasst. Bei einer deutlichen Veränderung der Kamera- oder Pegelposition muss die Kalibrierung erneuert werden. Eingebrannte Zeitstempel können im Originalbild abgelesen werden; die App übernimmt sie nicht automatisch.
+
+## Wie die Auswertung funktioniert
+
+Zunächst prüft das Programm die Bildqualität und erkennt eindeutig schneefreie Aufnahmen. Bei Bildern mit Schnee richtet es den Pegel an den Referenzaufnahmen aus und schätzt die Höhe anhand der Schneegrenze und der sichtbaren Pegelabschnitte. Widersprechen sich die Schätzungen, erscheint kein Höhenwert; das Bild wird zur Prüfung markiert.
+
+Dafür werden ResNet-18-Bildmerkmale, ein Klassifikator für schneefreie Situationen, die Pegelgeometrie und mehrere Extra-Trees-Regressoren kombiniert. Modelle, Kalibrierung und Referenzdaten sind im Repository enthalten.
+
+[Dokumentation zur Modellauswertung als PDF](docs/Schneepegel_Brotenau_Dokumentation.pdf)
+
+### Daten und bisherige Prüfung
+
+Die Datengrundlage umfasst 666 manuell geprüfte Stationsbilder aus 74 TLC-Bildserien. Für 571 Bilder wurden Schneehöhen zwischen 0 und 25 cm eingetragen; 95 Bilder wurden als nicht auswertbar markiert. Hinzu kommen manuell gesetzte Messmarken und 710 synthetische Bilder mit Schneehöhen von 10 bis 80 cm.
+
+Für Training und Test wurden vollständige Bildserien getrennt. Synthetische Varianten derselben Ausgangsaufnahme blieben ebenfalls zusammen, damit nahezu identische Bilder nicht auf beiden Seiten der Prüfung vorkommen.
+
+Bei der Prüfung mit 710 synthetischen Bildern wurden 508 automatisch gemessen, also 71,5 Prozent. Von diesen Messungen lagen 98,4 Prozent innerhalb von ±2 cm; der mittlere absolute Fehler betrug 0,23 cm. Von den 95 als nicht auswertbar markierten Stationsbildern wurden 92 automatisch abgelehnt.
+
+Die ursprünglichen Stationsbilder und Trainingsdaten sind nicht Teil des Repositorys.
+
+### Wo die Auswertung an Grenzen stößt
+
+- Reale Trainingsbilder mit mehr als 25 cm Schnee fehlen bislang. Größere Schneehöhen wurden hauptsächlich an synthetischen Bildern geprüft.
+- Tropfen, Schnee auf der Linse, Nebel und lokale Schmelzstellen können die Erkennung erschweren oder zu widersprüchlichen Ergebnissen führen.
+- Eine neue, zeitlich spätere Bildserie wurde noch nicht unabhängig ausgewertet. Die bisherigen Ergebnisse beschreiben die Prüfung mit den vorhandenen Daten.
+
+## Entwicklung
+
+Die Windows-App wurde mit Python 3.12 gebaut und getestet. Für die Entwicklung auf Windows:
 
 ```powershell
 git clone https://github.com/Dolcruz/schneepegel-brotenau.git
 cd schneepegel-brotenau
 
-py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.12.0 torchvision==0.27.0
+.\.venv\Scripts\python.exe -m pip install -r requirements-desktop.txt
 ```
 
-Ein Bild auswerten:
+### Kommandozeile
 
-```powershell
-.\.venv\Scripts\python.exe -m height_model.predict_pipeline C:\Pfad\zum\bild.jpg
-```
-
-Mehrere Bilder können in einem Aufruf übergeben werden:
+Ein oder mehrere Bilder lassen sich auch ohne Oberfläche auswerten:
 
 ```powershell
 .\.venv\Scripts\python.exe -m height_model.predict_pipeline C:\Bilder\bild1.jpg C:\Bilder\bild2.jpg
 ```
 
-Beim ersten Start lädt `torchvision` einmalig die vortrainierten ResNet-18-Gewichte herunter. Danach kann die Auswertung lokal laufen.
-
-## Erwartete Bilder
-
-- Auflösung: 1920 x 1080 Pixel
-- gleiche Kamera- und Pegelinstallation wie in Brotenau
-- JPG oder PNG
-- der Pegel sollte sich ungefähr im bekannten Bildbereich befinden
-
-Andere Auflösungen oder deutlich veränderte Kamerapositionen werden nicht automatisch umgerechnet.
-
-## Ausgabe
-
-Pro Bild wird eine JSON-Zeile ausgegeben. Entscheidend sind `status`, `snow_height_cm` und `reason`.
-
-Gemessene Schneehöhe:
+Pro Bild wird eine JSON-Zeile ausgegeben. `status` beschreibt das Ergebnis, `snow_height_cm` die Schneehöhe und `reason` den Entscheidungsgrund:
 
 ```json
 {"status": "measured", "snow_height_cm": 12.0, "reason": "positive_peg_model"}
-```
-
-Unsicheres Bild:
-
-```json
 {"status": "uncertain", "snow_height_cm": null, "reason": "geometric_models_disagree"}
-```
-
-Nicht auswertbares Bild:
-
-```json
 {"status": "unusable", "snow_height_cm": null, "reason": "quality_filter"}
 ```
 
-Bei `uncertain` und `unusable` wird bewusst keine Schneehöhe erzwungen.
+Beim ersten Aufruf lädt `torchvision` die vortrainierten ResNet-18-Gewichte herunter. Danach kann die Kommandozeilenauswertung ohne Internetverbindung laufen.
 
-## So funktioniert die Auswertung
+### Windows-Paket bauen
 
-```text
-Bild -> Bildqualität -> Schneekontext -> Pegel ausrichten -> Höhe schätzen -> Ergebnis prüfen
+Mit der oben eingerichteten Umgebung:
+
+```powershell
+.\.venv\Scripts\python.exe build_windows.py
 ```
 
-1. **Bildqualität prüfen.** Sind Pegel und Umgebung ausreichend sichtbar?
-2. **Schneefreie Bilder erkennen.** Bei eindeutig schneefreier Umgebung werden 0 cm ausgegeben.
-3. **Pegel ausrichten.** Drei Pegelbereiche werden an der Kalibrierung ausgerichtet und gleichen kleine Kamerabewegungen aus.
-4. **Schneehöhe schätzen.** Schneegrenze und Bildmerkmale werden entlang der kalibrierten Pegelachse ausgewertet.
-5. **Ergebnis freigeben.** Eine Zahl erscheint nur, wenn Geometrie, Pegelerkennung und Modellschätzungen ausreichend zusammenpassen.
+Das portable Programm liegt anschließend unter `dist/Schneepegel Brotenau`. Der Build lädt die ResNet-18-Gewichte herunter, prüft ihre Prüfsumme und packt alle benötigten Bibliotheken und Modelle dazu. Eine GPU wird nicht benötigt.
 
-Technisch kombiniert die Pipeline:
+Nach dem Build lässt sich die Oberfläche auch mit `.\.venv\Scripts\python.exe schneepegel.py` aus dem Quellcode starten.
 
-- ResNet-18-Bildmerkmale zur Erkennung unbrauchbarer Aufnahmen
-- einen separaten Kontextklassifikator für eindeutig schneefreie Situationen
-- Pegelanker zur Bildausrichtung
-- ein Sichtbarkeitsprofil entlang der kalibrierten Pegelachse
-- Extra-Trees-Regressoren für zusätzliche Pegel- und Umfeldmerkmale
-- einen Sicherheitsrouter, der widersprüchliche Ergebnisse zurückhält
+Für den Installer wird [Inno Setup 7](https://jrsoftware.org/isdl.php) benötigt:
 
-## Datengrundlage
+```powershell
+ISCC.exe installer.iss
+```
 
-- 666 manuell geprüfte Stationsbilder aus 74 TLC-Bildserien
-- 571 Bilder mit einer eingetragenen Schneehöhe zwischen 0 und 25 cm
-- 95 als nicht auswertbar markierte Bilder
-- manuell gesetzte Messmarken für den Zentimeterbezug
-- 710 synthetische Varianten von 10 bis 80 cm, zehn Bilder je Zentimeterstufe
+Die Setup-Datei liegt unter `dist/installer`. Sie installiert die App unter `%LOCALAPPDATA%\Programs\Schneepegel Brotenau` und erstellt die Verknüpfungen sowie den Eintrag zur Deinstallation.
 
-Aufeinanderfolgende Bilder derselben TLC-Serie wurden bei der Prüfung nicht zwischen Training und Test aufgeteilt. Auch synthetische Varianten derselben Ausgangsaufnahme blieben zusammen. So konnten nahezu identische Bilder nicht gleichzeitig im Training und im Test landen.
+[Technische Hinweise und Prüfbericht zum Windows-Paket](https://github.com/Dolcruz/schneepegel-brotenau/releases/download/v1.0.0/Schneepegel_Brotenau_Technik.txt)
 
-Die ursprünglichen Stationsbilder und Trainingsdaten sind nicht Bestandteil dieses Repositorys. Für die Laufzeit liegen nur die trainierten Modelle, die Pegelkalibrierung und ein kompaktes Referenzpaket bei.
-
-## Bisheriger Stand
-
-In der gruppengetrennten Prüfung mit 710 synthetischen Bildern wurden 508 Bilder automatisch gemessen. Das entspricht einer Abdeckung von 71,5 Prozent. Von den freigegebenen Messungen lagen 98,4 Prozent innerhalb von +/- 2 cm; der mittlere absolute Fehler lag bei 0,23 cm.
-
-Von den 95 manuell als nicht auswertbar markierten Stationsbildern wurden 92 automatisch abgelehnt.
-
-## Bekannte Grenzen
-
-- Reale Trainingsbilder über 25 cm fehlen bisher. Größere Höhen wurden hauptsächlich mit synthetischen Bildern geprüft.
-- Tropfen, Schnee auf der Linse, Nebel und lokale Schmelzstellen können Pegel und Umgebung widersprüchlich erscheinen lassen.
-- Eine deutliche Änderung der Kamera oder des Pegels erfordert eine neue Kalibrierung.
-- Eine vollständig neue, zeitlich spätere Bildserie wurde noch nicht als unabhängiger Zukunftstest ausgewertet.
-
-## Repository-Struktur
+## Projektstruktur
 
 ```text
+desktop/                     Oberfläche, Bildliste und lokale Speicherung
 height_model/
-  predict_pipeline.py        Kommandozeilen-Aufruf
+  predict_pipeline.py        Auswertung und Kommandozeilen-Aufruf
   features.py                Kontext- und Pegelmerkmale
   geometric_meter.py         Pegelausrichtung und geometrische Messung
   artifacts/                 trainierte Höhenmodelle
   resources/                 Kalibrierung und Referenzpaket
-quality_model/
-  artifacts/                 Modell für auswertbar / nicht auswertbar
-docs/
-  Schneepegel_Brotenau_Dokumentation.pdf
+quality_model/artifacts/     Modell zur Prüfung der Bildqualität
+tests/                       Tests für Oberfläche, Speicherung und Verarbeitung
+docs/                        Dokumentation zur Modellauswertung
+build_windows.py             Paketbau für Windows
+installer.iss                Windows-Installer
 ```
-
-Eine kompakte PDF-Fassung liegt unter [`docs/Schneepegel_Brotenau_Dokumentation.pdf`](docs/Schneepegel_Brotenau_Dokumentation.pdf).
