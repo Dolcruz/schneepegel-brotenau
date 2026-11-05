@@ -285,7 +285,11 @@ def extract_runtime_scores(
 ) -> dict[str, object]:
     calibration = load_calibration()
     templates = load_anchor_templates()
-    gray = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_GRAYSCALE)
+    # Like Pillow and the preview, use the stored pixels regardless of EXIF orientation.
+    gray = cv2.imdecode(
+        np.fromfile(image_path, dtype=np.uint8),
+        cv2.IMREAD_GRAYSCALE | cv2.IMREAD_IGNORE_ORIENTATION,
+    )
     if gray is None or gray.shape != (1080, 1920):
         return {"available": False}
 

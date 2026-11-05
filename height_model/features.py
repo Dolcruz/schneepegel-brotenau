@@ -11,6 +11,10 @@ TEMPLATE_SIZE = (55, 90)
 SEARCH_X = (930, 1025)
 SEARCH_MARGIN_Y = 20
 MIN_ANCHOR_SCORE = 0.20
+# The calibration refers to the stored camera pixels. Pillow (quality model) and
+# the preview ignore EXIF orientation, so OpenCV must not rotate the image either.
+GRAYSCALE = cv2.IMREAD_GRAYSCALE | cv2.IMREAD_IGNORE_ORIENTATION
+COLOR = cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION
 REFERENCE_BUNDLE = Path(__file__).resolve().parent / "resources" / "reference_bundle.npz"
 
 
@@ -42,7 +46,7 @@ def locate_anchor(image: np.ndarray, template: np.ndarray) -> tuple[int, int, fl
 
 
 def extract_peg_profile(image_path: Path, template: np.ndarray) -> tuple[np.ndarray, float]:
-    image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_GRAYSCALE)
+    image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), GRAYSCALE)
     if image is None or image.shape != (1080, 1920):
         raise RuntimeError(f"Unerwartetes Bildformat: {image_path}")
     x, y, score = locate_anchor(image, template)
@@ -64,7 +68,7 @@ def extract_peg_profile(image_path: Path, template: np.ndarray) -> tuple[np.ndar
 
 
 def extract_context_features(image_path: Path) -> np.ndarray:
-    image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR)
+    image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), COLOR)
     if image is None or image.shape[:2] != (1080, 1920):
         raise RuntimeError(f"Unerwartetes Bildformat: {image_path}")
     image = cv2.resize(image[:1035], (320, 180), interpolation=cv2.INTER_AREA)
