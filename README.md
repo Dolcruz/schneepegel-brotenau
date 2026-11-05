@@ -142,6 +142,8 @@ Nicht auswertbares Bild:
 
 Bei `uncertain` und `unusable` wird bewusst keine Schneehöhe erzwungen.
 
+Kann eine Datei nicht gelesen werden oder hat sie nicht 1920 x 1080 Pixel, erscheint für sie eine Zeile mit `"status": "error"` und der Ursache in `reason`. Die übrigen Bilder werden weiter ausgewertet; der Aufruf endet dann mit dem Rückgabewert 1.
+
 ## So funktioniert die Auswertung
 
 ```text

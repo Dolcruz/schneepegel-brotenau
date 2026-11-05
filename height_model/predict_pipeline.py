@@ -284,14 +284,27 @@ class SnowAnalyzer:
         return result
 
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser(description="Schneehöhenschätzung für Brotenau.")
     parser.add_argument("images", nargs="+", type=Path)
     args = parser.parse_args()
     analyzer = SnowAnalyzer()
+    failed = False
     for image in args.images:
-        print(json.dumps(analyzer.predict(image), ensure_ascii=False))
+        # One unreadable file must not discard the remaining images.
+        try:
+            result = analyzer.predict(image)
+        except (OSError, ValueError, RuntimeError) as exc:
+            failed = True
+            result = {
+                "image": str(image.resolve()),
+                "status": "error",
+                "snow_height_cm": None,
+                "reason": str(exc),
+            }
+        print(json.dumps(result, ensure_ascii=False), flush=True)
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
