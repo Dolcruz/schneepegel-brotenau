@@ -18,6 +18,7 @@ from .geometric_meter import measure_geometric_height
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 QUALITY_MODEL_DIR = ROOT / "quality_model"
+WRONG_SIZE = "Erwartet wird ein Stationsbild mit 1920 × 1080 Pixeln."
 
 
 def quantize_height(height_cm: float, resolution_cm: float) -> float:
@@ -165,9 +166,14 @@ class SnowAnalyzer:
         self.resolution_cm = float(self.metadata["output_resolution_cm"])
 
     def predict(self, image: Path) -> dict:
-        with Image.open(image) as source:
+        try:
+            source = Image.open(image)
+        except Image.DecompressionBombError as exc:
+            # Pillow rejects very large images before the resolution check runs.
+            raise ValueError(WRONG_SIZE) from exc
+        with source:
             if source.size != (1920, 1080):
-                raise ValueError("Erwartet wird ein Stationsbild mit 1920 × 1080 Pixeln.")
+                raise ValueError(WRONG_SIZE)
             quality_tensor = self.quality_weights.transforms()(
                 source.convert("RGB")
             ).unsqueeze(0)
